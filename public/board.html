@@ -74,7 +74,7 @@
 
     $.ajax({
       method: "GET",
-      url: "/board/index",
+      url: "/board/list",
       // data: { _id: listID },
       async: true,
     })
@@ -92,6 +92,7 @@
         console.log(index);
         const li = document.createElement("li");
         li.className = "bg-dark list-group-item";
+        li.style.padding = "2px";
         // li.style.backgroundColor = "rgb(30, 30, 30);
         
         const a = document.createElement("a");

@@ -7,7 +7,7 @@
 
 body {
   font-family: 'Jamsil';
-  background-color: rgb(71, 71, 71);
+  background-color: rgb(41, 41, 41);
 }
 
 .divProfile {
@@ -37,21 +37,22 @@ body {
   /* margin-right: 0; */
 }
 .leftSection {
-  flex: 1;
-  background-color: rgb(71, 71, 71);
+  flex: 2;
+  background-color: rgb(41, 41, 41);
 }
 .middleSection {
-  flex: 3;
+  flex: 6;
   background-color: #343a40;
-
+  padding: 10px;
 }
 .rightSection {
-  flex: 3;
+  flex: 0;
   background-color: greenyellow;
 
 }
 
 .boardListTitle {
-  font-size: 12px;
+  font-size: 14px;
+  color: white;
   letter-spacing: 1px;
 }

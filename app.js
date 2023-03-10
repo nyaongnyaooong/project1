@@ -43,7 +43,16 @@ MongoClient.connect(dbURL, (err, result) => {
 
 
 
-// Main Router
+
+
+
+
+
+
+
+
+
+// Main 블로그 Router
 app.get('/main', (req, res) => {
   // console.log("123");
   // const filePath = path.join(__dirname, 'html', 'main.ejs')
@@ -51,6 +60,24 @@ app.get('/main', (req, res) => {
   // res.sendFile(__dirname + '/index.html');
 });
 
+app.get("/main/blog/list", async (req, res) => {
+  try {
+    const result = await db.collection("blog").find().toArray();
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.post("main/blog/add", async (req, res) => {
+  const { title, content } = req.body;
+
+  const result = await db.collection("blog").find().toArray();
+});
+
+
+//게시판
 app.get('/board', (req, res) => {
   // console.log("123");
   // const filePath = path.join(__dirname, 'html', 'main.ejs')
@@ -60,7 +87,6 @@ app.get('/board', (req, res) => {
 
 app.get('/board/index', async (req, res) => {
   const result = await db.collection("board").find().toArray();
-  console.log(result);
   res.send(result);
 });
 
@@ -79,6 +105,18 @@ app.get("/:htmlFileName", async(req, res, next) => {
   }
   
 });
+
+app.get("/login", (req, res) => {
+  console.log("loginpage");
+
+});
+
+
+
+
+
+
+
 
 //404 Middleware
 app.use((req, res, next) => { // 404 처리 부분
