@@ -55,7 +55,21 @@
 
   <div class="container">
     <div class="leftSection">aa</div>
-    <div class="middleSection">bb</div>
+    <div class="middleSection">
+
+      <form action="/blog/add/post" method="post">
+        <div class="form-group">
+          <label for="exampleFormControlInput1">Email address</label>
+          <input type="text" class="form-control" id="exampleFormControlInput1" name="title">
+        </div>
+        <div class="form-group">
+          <label for="exampleFormControlTextarea1">Example textarea</label>
+          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="content"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Block level button</button>
+      </form>
+
+    </div>
     <div class="rightSection">cc</div>
   </div>
 
@@ -67,93 +81,12 @@
 
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
 
-  <script>
-    const deleteBTN = document.querySelectorAll('.btn_delete');
-    const searchBTN = document.querySelector("#btn_search");
-    const searchInput = document.querySelector("#input_search")
-
-    $.ajax({
-      method: "GET",
-      url: "/main/blog/list",
-      // data: { _id: listID },
-      async: true,
-    })
-    .done((result) => {
-      console.log(result);
-      console.log(result[0]);
-      console.log(typeof result);
-
-      const ul = document.createElement("ul");
-      ul.className = "list-group";
-
-      
-      for(index in result) {
-        console.log(result);
-        console.log(index);
-        const li = document.createElement("li");
-        li.className = "bg-dark list-group-item";
-        li.style.padding = "3px";
-        
-        const a = document.createElement("a");
-        a.className = "text-decoration-none";
-
-        const h5 = document.createElement("h6");
-        h5.className = "align-middle boardListTitle";
-        h5.style.margin = 0;
-        h5.innerHTML = result[index].title;
-        // a.href = "";
-      
-        a.append(h5);
-        li.append(a);
-        ul.append(li);
-      }
 
 
 
 
 
 
-      // for (value in result) {
-      //   const li = document.createElement("li");
-      //   li.className = "list-group-item";
-      // }
-      
-
-      // a1.setAttribute("class","container")
-
-      document.querySelector(".middleSection").append(ul);
-
-      
-
-
-
-      // <ul class="list-group">`;
-
-      // <li class="list-group-item">
-      //   <a href="/detail/${ result[i]._id }" class="text-decoration-none">
-      //     <h5>List ${ parseInt(i) + 1 }</h5>
-      //     <span>할일 : ${ result[i].title }</span><br>
-      //     <span>날짜 : ${ result[i].date }</span>
-      //   </a>
-      //   <button class="btn_delete" data-id="${ result[i]._id }">삭제</button>
-      //   <a href="/edit/${ result[i]._id }"><button class="btn_edit" data-id="${ result[i]._id }">수정</button></a>
-      // </li>
-
-
-      // // console.log(event.target.parentNode);
-      // // $( event.target.parentNode ).fadeOut();
-    })
-    .fail(() => {
-      console.log("fail");
-    });
-
-
-
-
-
-
-
-  </script>
 
 </body>
 </html>

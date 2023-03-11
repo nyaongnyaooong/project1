@@ -74,7 +74,7 @@
 
     $.ajax({
       method: "GET",
-      url: "/board/list",
+      url: "/blog/list",
       // data: { _id: listID },
       async: true,
     })
@@ -92,22 +92,27 @@
         console.log(index);
         const li = document.createElement("li");
         li.className = "bg-dark list-group-item";
-        li.style.padding = "2px";
-        // li.style.backgroundColor = "rgb(30, 30, 30);
+        li.style.padding = "3px";
         
         const a = document.createElement("a");
         a.className = "text-decoration-none";
-        a.href = "/board/" + result.id;
+        a.href = "/blog/" + result[index]._id;
 
         const h5 = document.createElement("h6");
         h5.className = "align-middle boardListTitle";
         h5.style.margin = 0;
         h5.innerHTML = result[index].title;
+        // a.href = "";
       
         a.append(h5);
         li.append(a);
         ul.append(li);
       }
+
+
+
+
+
 
       // for (value in result) {
       //   const li = document.createElement("li");

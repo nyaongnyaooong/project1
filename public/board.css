@@ -51,8 +51,9 @@ body {
 
 }
 
+/* blog, board 리스트 글자 크기 */
 .boardListTitle {
-  font-size: 14px;
+  font-size: 13px;
   color: white;
   letter-spacing: 1px;
 }
