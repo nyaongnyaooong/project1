@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/board.css">
+  <title>project1</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+  
+<!-- <div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+    <a class="navbar-brand" href="#">
+      <div class="d-inline-block align-top divNavProfile">
+        <img src="/img/68260365.png" class="d-inline-block align-top profileCircle" alt="">
+      </div>
+      Bootstrap
+    </a>
+
+    <div class="navbar-collapse">
+      <ul class="navbar-nav mr-auto my-2 my-lg-0 navbar-nav-scroll" style="max-height: 100px;">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/board">게시판</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+            게임
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">지뢰찾기</a></li>
+            <li><a class="dropdown-item" href="#">틀린 그림 맞추기</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Link</a>
+        </li>
+      </ul>
+
+      <a href="/login"><button class="btn btn-outline-primary ml-3" type="submit">로그인</button></a>
+      <a href="/register"><button class="btn btn-outline-primary ml-3" type="submit">회원가입</button></a>
+
+    </div>
+  </nav>
+</div> -->
+
+  <div class="container">
+    <div class="leftSection">aa</div>
+    <div class="middleSection">bb</div>
+    <div class="rightSection">cc</div>
+  </div>
+
+  <footer>
+
+  </footer>
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+  <script src="/js/navber.js"></script>
+  <script>
+    const deleteBTN = document.querySelectorAll('.btn_delete');
+    const searchBTN = document.querySelector("#btn_search");
+    const searchInput = document.querySelector("#input_search")
+
+    $.ajax({
+      method: "GET",
+      url: "/board/list",
+      // data: { _id: listID },
+      async: true,
+    })
+    .done((result) => {
+      console.log(result);
+      console.log(result[0]);
+      console.log(typeof result);
+
+      const ul = document.createElement("ul");
+      ul.className = "list-group";
+
+      
+      for(index in result) {
+        console.log(result);
+        console.log(index);
+        const li = document.createElement("li");
+        li.className = "bg-dark list-group-item";
+        li.style.padding = "2px";
+        // li.style.backgroundColor = "rgb(30, 30, 30);
+        
+        const a = document.createElement("a");
+        a.className = "text-decoration-none";
+        a.href = "/board/" + result[index]._id;
+
+        const h5 = document.createElement("h6");
+        h5.className = "align-middle boardListTitle";
+        h5.style.margin = 0;
+        h5.innerHTML = result[index].title;
+      
+        a.append(h5);
+        li.append(a);
+        ul.append(li);
+      }
+
+      // for (value in result) {
+      //   const li = document.createElement("li");
+      //   li.className = "list-group-item";
+      // }
+      
+
+      // a1.setAttribute("class","container")
+
+      document.querySelector(".middleSection").append(ul);
+
+      
+
+
+
+      // <ul class="list-group">`;
+
+      // <li class="list-group-item">
+      //   <a href="/detail/${ result[i]._id }" class="text-decoration-none">
+      //     <h5>List ${ parseInt(i) + 1 }</h5>
+      //     <span>할일 : ${ result[i].title }</span><br>
+      //     <span>날짜 : ${ result[i].date }</span>
+      //   </a>
+      //   <button class="btn_delete" data-id="${ result[i]._id }">삭제</button>
+      //   <a href="/edit/${ result[i]._id }"><button class="btn_edit" data-id="${ result[i]._id }">수정</button></a>
+      // </li>
+
+
+      // // console.log(event.target.parentNode);
+      // // $( event.target.parentNode ).fadeOut();
+    })
+    .fail(() => {
+      console.log("fail");
+    });
+
+
+
+
+
+
+
+  </script>
+
+</body>
+</html>

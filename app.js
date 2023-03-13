@@ -19,6 +19,10 @@ require('dotenv').config()
 //Static File (/ 라우터 포함)
 app.use(express.static('public'));
 
+//cookie parser
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 //MongoDB Atlas Setting
 const dbURL = 'mongodb+srv://' + process.env.DB_ID + ':' + process.env.DB_PW + process.env.DB_URL;
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -29,7 +33,6 @@ MongoClient.connect(dbURL, (err, result) => {
   }
 
   db = result.db('project1');
-  console.log('DB connected.');
 
   app.listen(8080, () => {
     console.log('listening on 8080');
@@ -37,6 +40,7 @@ MongoClient.connect(dbURL, (err, result) => {
 
 });
 
+const jwt = require(path.join(__dirname, './modules/jwt'));
 
 
 
@@ -44,81 +48,43 @@ MongoClient.connect(dbURL, (err, result) => {
 // app.set('view engine', 'html');
 
 
-
-
-
-
-
-
-
-
-
-// Main 블로그 Router
-app.get('/blog', (req, res) => {
-  // console.log('123');
-  // const filePath = path.join(__dirname, 'html', 'main.ejs')
-  res.sendFile(__dirname + '/public/blog.html');
-  // res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/blog/list', async (req, res) => {
+//토큰 검증 middleware
+app.use((req, res, next) => {
   try {
-    const result = await db.collection('blog').find({ view: true }).toArray();
+    const { AccessToken } = req.cookies;
+    const encodedHeader = AccessToken.split('.')[0];
+    const encodedPayload = AccessToken.split('.')[1];
+    const signature = AccessToken.split('.')[2];
 
-    res.send(result);
-  } catch (error) {
-    console.error(error);
+    const tokenSignature = jwt.createSignature(encodedHeader, encodedPayload);
+
+    if (signature != tokenSignature) throw new Error('poisoned cookie');
+
+    //payload를 디코딩하여 req.user에 넣음
+    //JSON => 자바스크립트 객체화
+    const user = JSON.parse(Buffer.from(encodedPayload, 'base64').toString('utf-8'));
+
+    req.user = {
+        ...user
+    };
+    next();
+
+  } catch {
+    next();
   }
 });
 
-app.get('/blog/add', async (req, res) => {
-  res.sendFile(__dirname + '/public/blogAdd.html');
-
-});
-
-app.post('/blog/add/post', async (req, res) => {
-  console.log('Create request');
-
-  //counter collection에서 ID 찾기
-  const getID = await db.collection('counter').findOne({ pw: '1234' });
-  //counter collection ID 숫자증가
-  const updateID = await db.collection('counter').updateOne({ pw: '1234' }, { $inc : { lastID: 1} });
-  console.log(getID)
-
-  const {title, content} = req.body;
-
-  const dbObject = {
-    _id: parseInt(getID.lastBlogID) + 1,
-    date: new Date,
-    title: title,
-    content: content,
-    view: true,
-  }
-
-  const addDB = await db.collection('blog').insertOne(dbObject);
-  res.redirect('/blog/add');
-});
 
 
-app.get('/blog/:id', async (req, res) => {
-  const result = await db.collection('blog').findOne({ _id: parseInt(req.params.id) });
-  console.log(result)
-  res.send(result);
-});
+//메인 blog 관련 라우터
+app.use('/', require(path.join(__dirname, './routes/blog.js')));
 
+//게시판 관련 라우터
+app.use('/', require(path.join(__dirname, './routes/board.js')));
 
-//게시판
-app.get('/board', (req, res) => {
-  // console.log('123');
-  // const filePath = path.join(__dirname, 'html', 'main.ejs')
-  res.sendFile(__dirname + '/public/board.html');
-  // res.sendFile(__dirname + '/index.html');
-});
+//게시판 관련 라우터
+app.use('/', require(path.join(__dirname, './routes/acount.js')));
 
-app.get('/board/list ', async (req, res) => {
-  const result = await db.collection('board').find().toArray();
-  res.send(result);
-});
 
 
 
