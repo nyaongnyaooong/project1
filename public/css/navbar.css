@@ -1,0 +1,82 @@
+@font-face {
+  font-family: 'Jamsil';
+  src: url('/Jamsil.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Jamsil';
+  background-color: rgb(41, 41, 41);
+  margin: 0px;
+}
+
+.navber {
+  width: 100%;
+  height: 40px;
+  background-color: #343a40;
+  display: flex;
+  align-items: center;
+}
+
+
+.main_title {
+  /* width: 160px; */
+  margin-left: 10px;
+  height: 30px;
+  display: flex;
+  cursor : pointer;
+  /* align-items: center;
+  float: left; */
+}
+
+.main_title > span {
+  margin-left: 7px;
+}
+
+.nav_img_div {
+  width: 30px;
+  height: 30px; 
+  border-radius: 70%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  float: left;
+}
+
+.nav_title {
+  display: flex;
+  align-items: center;
+  float: left;
+}
+
+.profileCircle {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.link {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.link > a {
+  margin-left: 15px;
+}
+
+.user_info {
+  /* width: ; */
+  margin-right: 10px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  float: right;
+}
+
+.user_info > a {
+  margin-left: 15px;
+}
+

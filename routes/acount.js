@@ -31,11 +31,13 @@ const jwt = require(path.join(__dirname, '../modules/jwt'));
 
 
 
-
+//로그인 페이지
 router.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/html/acount/login.html'));
 });
 
+
+//로그인 요청
 router.post('/login/post', async (req, res) => {
   const {id, pw} = req.body;
   const result = await db.collection('user').findOne({ name: id });
@@ -66,10 +68,14 @@ router.post('/login/post', async (req, res) => {
   }
 });
 
+
+//회원가입
 router.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/html/acount/register.html'));
 });
 
+
+//회원가입 요청
 router.post('/register/post', async (req, res) => {
   try {
     const duplication = await db.collection('user').findOne({ name: req.body.id });

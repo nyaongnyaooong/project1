@@ -16,7 +16,7 @@ MongoClient.connect(dbURL, (err, result) => {
 
 
 router.get('/board', (req, res) => {
-  console.log(req.user.userid);
+  console.log('requser', req.user);
   // console.log('123');
   // const filePath = path.join(__dirname, 'html', 'main.ejs')
   res.sendFile(path.join(__dirname, '../public/html/board/board.html'));

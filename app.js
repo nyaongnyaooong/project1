@@ -25,20 +25,31 @@ app.use(cookieParser());
 
 //MongoDB Atlas Setting
 const dbURL = 'mongodb+srv://' + process.env.DB_ID + ':' + process.env.DB_PW + process.env.DB_URL;
+
 const { MongoClient, ServerApiVersion } = require('mongodb');
 let db;
-MongoClient.connect(dbURL, (err, result) => {
-  if (err) {
-    return console.log(err);
-  }
-
-  db = result.db('project1');
+const client = new MongoClient(dbURL, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+client.connect(err => {
+  db = client.db('project1');
 
   app.listen(8080, () => {
     console.log('listening on 8080');
   });
-
+  // perform actions on the collection object
+  // client.close();
 });
+// MongoClient.connect(dbURL, (err, result) => {
+//   if (err) {
+//     return console.log(err);
+//   }
+
+//   db = result.db('project1');
+
+//   app.listen(8080, () => {
+//     console.log('listening on 8080');
+//   });
+
+// });
 
 const jwt = require(path.join(__dirname, './modules/jwt'));
 
@@ -74,6 +85,10 @@ app.use((req, res, next) => {
   }
 });
 
+app.get('/userdata', (req, res) => {
+  const userData = req.user;
+  res.send(userData);
+});
 
 
 //메인 blog 관련 라우터
@@ -84,6 +99,22 @@ app.use('/', require(path.join(__dirname, './routes/board.js')));
 
 //게시판 관련 라우터
 app.use('/', require(path.join(__dirname, './routes/acount.js')));
+
+
+
+
+
+app.get('/navber', async(req, res, next) => {
+  try {
+    const htmlFileFullDir = __dirname + '/public/html/public/navber.html';
+    res.sendFile(htmlFileFullDir);
+  } catch (err) {
+    console.log(1);
+    console.error(err);
+  }
+  
+});
+
 
 
 
@@ -101,6 +132,9 @@ app.get('/:htmlFileName', async(req, res, next) => {
   }
   
 });
+
+
+
 
 app.get('/login', (req, res) => {
   console.log('loginpage');
