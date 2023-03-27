@@ -36,6 +36,13 @@ router.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/html/acount/login.html'));
 });
 
+//로그아웃 페이지
+router.get('/logout', (req, res) => {
+  // 토큰 제거
+  res.clearCookie('AccessToken', {path: '/'})
+  res.redirect('/')
+});
+
 
 //로그인 요청
 router.post('/login/post', async (req, res) => {

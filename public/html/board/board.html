@@ -13,15 +13,6 @@
 
   <script src="js/includeHTML.js"></script>
 
-  <script type="text/javascript">   
-    $(document).ready( function() {
-    
-    $("#navbar").load("html/public/navbar.html");  // 원하는 파일 경로를 삽입하면 된다
-    
-    });
-  </script>
-    
-
 </head>
 
 
@@ -30,8 +21,8 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
   <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script> -->
-  <div include-html="html/public/navbar.html"></div>
-  <div id="navbar"></div>
+  <div include-html="/navbar"></div>
+
 
 
 <!-- <div>
@@ -161,35 +152,6 @@
     });
 
 
-    const userLink = document.querySelectorAll(".user_link");
-    const userSpan = document.querySelectorAll(".user_span");
-
-    $.ajax({
-      method: "GET",
-      url: "/userdata",
-      // data: { _id: listID },
-      async: true,
-    })
-    .done((result) => {
-      console.log(result)
-      console.log(userLink)
-      if(result) {
-        userLink[0].href = "/userinfo"
-        userLink[1].href = "/logout"
-        userSpan[0].innerHTML = "User"
-        userSpan[1].innerHTML = "LogOut"
-      } else {
-        userLink[0].href = "/login"
-        userLink[1].href = "/register"
-        userSpan[0].innerHTML = "Login"
-        userSpan[1].innerHTML = "Register"
-      }
-
-
-    })
-    .fail(() => {
-      console.log("fail");
-    });
   </script>
 
 </body>

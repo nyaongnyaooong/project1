@@ -104,10 +104,15 @@ app.use('/', require(path.join(__dirname, './routes/acount.js')));
 
 
 
-app.get('/navber', async(req, res, next) => {
+app.get('/navbar', async(req, res) => {
   try {
-    const htmlFileFullDir = __dirname + '/public/html/public/navber.html';
-    res.sendFile(htmlFileFullDir);
+    const userData = req.user;
+    const htmlFileFullDir = __dirname + '/public/html/public/';
+    if (userData) {
+      res.sendFile(htmlFileFullDir + 'navbar_login.html');
+    } else {
+      res.sendFile(htmlFileFullDir + 'navbar.html');
+    }
   } catch (err) {
     console.log(1);
     console.error(err);
@@ -135,11 +140,6 @@ app.get('/:htmlFileName', async(req, res, next) => {
 
 
 
-
-app.get('/login', (req, res) => {
-  console.log('loginpage');
-
-});
 
 
 

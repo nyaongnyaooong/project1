@@ -8,50 +8,14 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/board.css">
   <title>project1</title>
+  <script src="js/includeHTML.js"></script>
+
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
-
-<div>
-  <nav class="navbar navbar-expand-lg navbar-light bg-dark">
-    <a class="navbar-brand" href="#">
-      <div class="d-inline-block align-top divNavProfile">
-        <img src="/img/68260365.png" class="d-inline-block align-top profileCircle" alt="">
-      </div>
-      Bootstrap
-    </a>
-
-    <div class="navbar-collapse">
-      <ul class="navbar-nav mr-auto my-2 my-lg-0 navbar-nav-scroll" style="max-height: 100px;">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/board">게시판</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-            게임
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">지뢰찾기</a></li>
-            <li><a class="dropdown-item" href="#">틀린 그림 맞추기</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled">Link</a>
-        </li>
-      </ul>
-      <form class="d-flex">
-        <button class="btn btn-outline-primary ml-3" type="submit" name="login">로그인</button>
-        <button class="btn btn-outline-primary ml-3" type="submit" name="signup">회원가입</button>
-      </form>
-    </div>
-  </nav>
-</div>
+  
+  <div include-html="/navbar"></div>
 
   <div class="container">
     <div class="leftSection">aa</div>
@@ -66,7 +30,7 @@
 
 
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-
+  <script>includeHTML();</script>
   <script>
     const deleteBTN = document.querySelectorAll('.btn_delete');
     const searchBTN = document.querySelector("#btn_search");
