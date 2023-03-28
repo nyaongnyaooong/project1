@@ -8,6 +8,20 @@
 body {
   font-family: 'Jamsil';
   background-color: rgb(41, 41, 41);
+  margin: 0px;
+}
+
+table {
+  border-collapse: collapse;
+  border-top: 1px solid white;
+}
+
+tr {
+  border-bottom: 1px solid white;
+}
+
+ul {
+  list-style: none;
 }
 
 .divProfile {
@@ -30,25 +44,35 @@ body {
 }
 
 
+.bg-dark {
+  background-color: rgb(41, 41, 41);
+}
+
+
+
+
 .container {
-  display: inline-flex;
+  display: flex;
   /* width: 100%;
   margin: auto; */
   /* margin-right: 0; */
 }
+
 .leftSection {
-  flex: 2;
+  flex: 1;
   background-color: rgb(41, 41, 41);
 }
-.middleSection {
-  flex: 6;
-  background-color: #343a40;
-  padding: 10px;
-}
-.rightSection {
-  flex: 0;
-  background-color: greenyellow;
 
+.middleSection {
+  flex: 5;
+  height: 100vh;
+  background-color: #343a40;
+  /* padding: 10px; */
+}
+
+.rightSection {
+  flex: 1;
+  background-color: rgb(41, 41, 41);
 }
 
 /* blog, board 리스트 글자 크기 */
@@ -57,3 +81,35 @@ body {
   color: white;
   letter-spacing: 1px;
 }
+
+
+
+.content_box {
+  position: absolute;
+  /* top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px; */
+  background-color: steelblue;
+  height: auto;
+  clear: both;
+  float: left;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%);
+  /* padding-top: 60px; */
+}
+
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1;
+}
+
+.visible {
+  opacity: 0;
+  visibility: visible;
+  z-index: 10;
+}
+
