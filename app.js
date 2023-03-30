@@ -104,25 +104,6 @@ app.use('/', require(path.join(__dirname, './routes/acount.js')));
 
 
 
-app.get('/navbar', async(req, res) => {
-  try {
-    const userData = req.user;
-    const htmlFileFullDir = __dirname + '/public/html/public/';
-    if (userData) {
-      res.sendFile(htmlFileFullDir + 'navbar_login.html');
-    } else {
-      res.sendFile(htmlFileFullDir + 'navbar.html');
-    }
-  } catch (err) {
-    console.log(1);
-    console.error(err);
-  }
-  
-});
-
-
-
-
 
 //admin 페이지
 app.get('/:htmlFileName', async(req, res, next) => {
