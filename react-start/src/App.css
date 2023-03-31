@@ -135,8 +135,15 @@ a:active {
 .nav_r_section button {
   margin-left: 30px;
   /* font-weight: 700; */
+  color: white;
   display: table-cell;
   float: right;
   cursor: pointer;
   /* padding-left: 10px; */
+}
+
+.nav_r_section button:hover {
+  cursor: pointer;
+  color: steelblue;
+  text-decoration: none;
 }
