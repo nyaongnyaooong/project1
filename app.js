@@ -23,6 +23,10 @@ app.use(express.static('public'));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+//CORS
+const cors = require('cors');
+app.use(cors());  // 모든 도메인에 대해 제한 없음
+
 //MongoDB Atlas Setting
 const dbURL = 'mongodb+srv://' + process.env.DB_ID + ':' + process.env.DB_PW + process.env.DB_URL;
 
@@ -63,6 +67,7 @@ const jwt = require(path.join(__dirname, './modules/jwt'));
 app.use((req, res, next) => {
   try {
     const { AccessToken } = req.cookies;
+    console.log(AccessToken);
     const encodedHeader = AccessToken.split('.')[0];
     const encodedPayload = AccessToken.split('.')[1];
     const signature = AccessToken.split('.')[2];
@@ -87,6 +92,7 @@ app.use((req, res, next) => {
 
 app.get('/userdata', (req, res) => {
   const userData = req.user;
+  console.log("유저 데이터 요청", userData);
   res.send(userData);
 });
 

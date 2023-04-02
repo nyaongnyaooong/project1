@@ -1,8 +1,14 @@
+@font-face {
+  font-family: 'Jamsil';
+  src: url('../../public/Jamsil.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html {
   width: 100%;
   height: 100%;
 }
-
 
 body {
   width: 100%;
@@ -38,12 +44,20 @@ ul {
   width: 100%;
 }
 
-
-
-
-.opa0 {
-  opacity: 0;
+#loading {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  /* background-color: rgb(41, 41, 41); */
+  z-index: 15;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 100%;
+  width: 100%;
 }
+
 
 .zhide {
   z-index: -1;

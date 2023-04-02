@@ -1,10 +1,3 @@
-@font-face {
-  font-family: 'Jamsil';
-  src: url('../public/Jamsil.ttf') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -79,7 +72,7 @@
 .ani_fadeOut {
   /* position: absolute; */
   /* z-index: 12; */
-  animation: fadeOut 400ms;
+  animation: fadeOut 1s;
 }
 
 .ani_fadeInUp {

@@ -67,7 +67,7 @@ router.post('/login/post', async (req, res) => {
         path: '/',
         HttpOnly: true
     });
-    res.redirect('/');
+    res.redirect('http://localhost:3000/');
       
   } catch(err) {
       console.log(err)

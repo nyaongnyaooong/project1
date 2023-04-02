@@ -11,11 +11,13 @@ a:hover {
   text-decoration: none;
 }
 a:active {
-  color: green;
+  /* color: green; */
   text-decoration: none;
 }
 
-
+button {
+  user-select : none;
+}
 
 
 .navbar {
