@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import './css/App.css';
 import './css/animation.css';
 import LogInForm from './component/LogInForm'
 import Nav from './component/Navbar'
 import Loading from './component/Loading'
-import { Home, Blog, Board } from './component/Router'
+import { Home, Blog, Board, BoardNew } from './component/Router'
 // import axios from 'axios';
 
 
@@ -35,12 +35,11 @@ const BgDarker = (props) => {
 
 function App() {
   const navBtnList = ["NyaongNyaooong", "Blog", "Board", "menu1", "menu2"];
-
+  console.log(1);
   let nowPageState = 0;
   navBtnList.forEach((e, i) => {
     if (window.location.pathname === "/" + e.toLowerCase()) nowPageState = i;
   });
-
   // axios.get("http://localhost:8080/userdata")
   // .then((response) => {
   //   console.log(response);
@@ -64,7 +63,7 @@ function App() {
   }, 900);
 
   return (
-    <HashRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
 
       <Loading active={loading} />
 
@@ -91,6 +90,7 @@ function App() {
               <Route path="/" element={<Home></Home>}></Route>
               <Route path="/blog" element={<Blog></Blog>}></Route>
               <Route path="/board" element={<Board></Board>}></Route>
+              <Route path="/board/write" element={<BoardNew></BoardNew>}></Route>
             </Routes>
           </div>
           {/* <!-- /Content --> */}
@@ -109,7 +109,7 @@ function App() {
       {/* /Login Form */}
 
       <div className="footer"></div>
-    </HashRouter >
+    </BrowserRouter >
   );
 }
 

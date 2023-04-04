@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 
 //express 모듈에 body-parser내장
-app.use(express.urlencoded({ extended : true }));
+app.use(express.urlencoded({ extended: true }));
 
 //method-override for RESTFUL API
 const methodOverride = require('method-override');
@@ -15,7 +15,7 @@ app.use(methodOverride('_method'));
 
 //dotenv
 require('dotenv').config()
- 
+
 //Static File (/ 라우터 포함)
 app.use(express.static('public'));
 
@@ -39,29 +39,66 @@ client.connect(err => {
   app.listen(8080, () => {
     console.log('listening on 8080');
   });
-  // perform actions on the collection object
-  // client.close();
+
 });
-// MongoClient.connect(dbURL, (err, result) => {
-//   if (err) {
-//     return console.log(err);
-//   }
 
-//   db = result.db('project1');
 
-//   app.listen(8080, () => {
-//     console.log('listening on 8080');
-//   });
 
+
+
+//MySQL 추가
+
+// const mysql = require('mysql');
+// const mysqlConn = mysql.createConnection({
+//   host     : 'localhost',
+//   user     : 'root',
+//   password : '1458369',
+//   database : 'blog'
 // });
 
+
+let mysqlDB;
+
+const mysql = require("mysql2/promise");
+app.use(async (req, res, next) => {
+  try {
+    mysqlDB = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "1458369",
+      database: "blog",
+    });
+    next();
+  } catch {
+    next();
+  }
+});
+
+// async () => {
+//   try {
+//     // let connection = await mysql.createConnection({
+//     //   host: "localhost",
+//     //   user: "root",
+//     //   password: "1458369",
+//     //   database: "blog",
+//     // });
+//     mysqlDB = await mysql.createConnection({
+//       host: "localhost",
+//       user: "root",
+//       password: "1458369",
+//       database: "blog",
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+// mysqlConn.connect();
+
+
+
+
+//jwt 인증 라우터
 const jwt = require(path.join(__dirname, './modules/jwt'));
-
-
-
-// const { Script } = require('vm');
-// app.set('view engine', 'html');
-
 
 //토큰 검증 middleware
 app.use((req, res, next) => {
@@ -81,13 +118,27 @@ app.use((req, res, next) => {
     const user = JSON.parse(Buffer.from(encodedPayload, 'base64').toString('utf-8'));
 
     req.user = {
-        ...user
+      ...user
     };
     next();
 
   } catch {
     next();
   }
+});
+
+
+app.get("/board/data", async (req, res) => {
+
+  try {
+    let [rows] = await mysqlDB.query('SELECT * from board');
+    console.log(rows);
+    res.send(rows);
+  } catch (error) {
+    console.error(error)
+  }
+
+
 });
 
 app.get('/userdata', (req, res) => {
@@ -112,7 +163,7 @@ app.use('/', require(path.join(__dirname, './routes/acount.js')));
 
 
 //admin 페이지
-app.get('/:htmlFileName', async(req, res, next) => {
+app.get('/:htmlFileName', async (req, res, next) => {
   try {
     const { htmlFileName } = req.params;
     const htmlFileFullDir = __dirname + '/public/' + htmlFileName + '.html';
@@ -122,7 +173,7 @@ app.get('/:htmlFileName', async(req, res, next) => {
     console.log(1);
     console.error(err);
   }
-  
+
 });
 
 

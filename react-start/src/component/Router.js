@@ -1,3 +1,8 @@
+import { Link } from 'react-router-dom';
+// import { useAsync } from "react-async";
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+
 const Home = () => {
   return (
     <div className="content_box visible ani_fadeIn" id="home">
@@ -37,28 +42,77 @@ const Blog = () => {
 }
 
 const Board = () => {
+  const [boardData, setBoardData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await axios.get("http://localhost:8080/board/data");
+        console.log(response);
+        setBoardData(response.data);
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, []);
+
+  function TableCell(props) {
+    return (
+      <tr>
+        <td className="title">
+          <span>{props.title}</span>
+        </td>
+        <td className="author">
+          <span>{props.author}</span>
+        </td>
+        <td className="view">
+          <span>{props.view}</span>
+        </td>
+        <td className="created">
+          <span>{props.created}</span>
+        </td>
+      </tr>
+    );
+  }
+
+  const array = [];
+  boardData.forEach(e => {
+    array.push(
+      <TableCell key={e.id} title={e.title} author={e.author} view={e.id} created={e.created}></TableCell>
+    );
+  });
+
   return (
     <div className="content_box ani_fadeIn" id="board">
+      <Link to={"/board/write"}>
+        <span>글쓰기</span>
+      </Link>
       <table className="">
         <tbody className="boardTable">
-          <tr>
-            <td className="제목">
-              <span>제목</span>
-            </td>
-            <td className="글쓴이">
-              <span>글쓴이</span>
-            </td>
-            <td className="조회수">
-              <span>조회수</span>
-            </td>
-            <td className="날짜">
-              <span>날짜</span>
-            </td>
-          </tr>
+          <TableCell title="제목" author="글쓴이" view="조회수" created="날짜"></TableCell>
+          {array}
         </tbody>
       </table>
+
     </div>
   )
 }
 
-export {Home, Blog, Board}; 
+const BoardNew = () => {
+  return (
+    <div className="content_box ani_fadeIn" id="board">
+      <div>
+        title
+      </div>
+      <div>
+        content
+      </div>
+      <a href="/board/write/post"><span>write</span></a>
+
+    </div>
+  )
+}
+
+export { Home, Blog, Board, BoardNew }; 
