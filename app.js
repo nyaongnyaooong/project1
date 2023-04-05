@@ -8,6 +8,7 @@ const fs = require('fs');
 
 //express 모듈에 body-parser내장
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //method-override for RESTFUL API
 const methodOverride = require('method-override');
@@ -25,7 +26,11 @@ app.use(cookieParser());
 
 //CORS
 const cors = require('cors');
-app.use(cors());  // 모든 도메인에 대해 제한 없음
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 
 //MongoDB Atlas Setting
 const dbURL = 'mongodb+srv://' + process.env.DB_ID + ':' + process.env.DB_PW + process.env.DB_URL;
@@ -52,7 +57,7 @@ client.connect(err => {
 // const mysqlConn = mysql.createConnection({
 //   host     : 'localhost',
 //   user     : 'root',
-//   password : '1458369',
+//   password : process.env.DB_ID,
 //   database : 'blog'
 // });
 
@@ -60,16 +65,17 @@ client.connect(err => {
 let mysqlDB;
 
 const mysql = require("mysql2/promise");
-app.use(async (req, res, next) => {
+app.use("/board*", async (req, res, next) => {
   try {
     mysqlDB = await mysql.createConnection({
       host: "localhost",
       user: "root",
-      password: "1458369",
+      password: process.env.MY_SQL_PW,
       database: "blog",
     });
     next();
   } catch {
+    console.log('sqldb 접속불가')
     next();
   }
 });
@@ -104,7 +110,9 @@ const jwt = require(path.join(__dirname, './modules/jwt'));
 app.use((req, res, next) => {
   try {
     const { AccessToken } = req.cookies;
-    console.log(AccessToken);
+    console.log('cookie = ' + req.cookies)
+    console.log('JWT = ' + AccessToken)
+    // console.log(AccessToken);
     const encodedHeader = AccessToken.split('.')[0];
     const encodedPayload = AccessToken.split('.')[1];
     const signature = AccessToken.split('.')[2];
@@ -129,23 +137,46 @@ app.use((req, res, next) => {
 
 
 app.get("/board/data", async (req, res) => {
-
   try {
-    let [rows] = await mysqlDB.query('SELECT * from board');
-    console.log(rows);
+    let [rows] = await mysqlDB.query("SELECT id, title, author, view, created from board");
+    console.log('sql요청');
     res.send(rows);
   } catch (error) {
     console.error(error)
   }
+});
 
+
+app.post("/board/post", async (req, res) => {
+  const { title, content } = req.body;
+  console.log(title, content)
+  try {
+    const sendQuery = `
+    INSERT INTO board(title, content, created, author, view)
+    VALUES('${title}', '${content}', NOW(), 'admin', 0)
+    `;
+    const result = await mysqlDB.query(sendQuery);
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+  }
 
 });
 
 app.get('/userdata', (req, res) => {
+  // const cookie = req.cookies
+  // console.log('cookie = ', cookie)
   const userData = req.user;
   console.log("유저 데이터 요청", userData);
   res.send(userData);
 });
+
+app.get('/logout', (req, res)=>{
+  // 쿠키 삭제
+  res.clearCookie('AccessToken', {path: '/'})
+  res.redirect('/')
+})
+
 
 
 //메인 blog 관련 라우터
@@ -167,10 +198,8 @@ app.get('/:htmlFileName', async (req, res, next) => {
   try {
     const { htmlFileName } = req.params;
     const htmlFileFullDir = __dirname + '/public/' + htmlFileName + '.html';
-    console.log(htmlFileName);
     res.sendFile(htmlFileFullDir);
   } catch (err) {
-    console.log(1);
     console.error(err);
   }
 

@@ -1,13 +1,15 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import './css/App.css';
 import './css/animation.css';
 import LogInForm from './component/LogInForm'
 import Nav from './component/Navbar'
-import Loading from './component/Loading'
+// import Loading from './component/Loading'
 import { Home, Blog, Board, BoardNew } from './component/Router'
-// import axios from 'axios';
+import axios from 'axios';
+axios.defaults.withCredentials = true;
+
 
 
 const BgDarker = (props) => {
@@ -35,10 +37,12 @@ const BgDarker = (props) => {
 
 function App() {
   const navBtnList = ["NyaongNyaooong", "Blog", "Board", "menu1", "menu2"];
-  console.log(1);
+  console.log('렌더링됨');
   let nowPageState = 0;
+  const urlPath = window.location.pathname;
+  const comparePath = urlPath.split('/')
   navBtnList.forEach((e, i) => {
-    if (window.location.pathname === "/" + e.toLowerCase()) nowPageState = i;
+    if (comparePath[1] === e.toLowerCase()) nowPageState = i;
   });
   // axios.get("http://localhost:8080/userdata")
   // .then((response) => {
@@ -50,7 +54,8 @@ function App() {
   let [navBtnAct, setNavBtnAct] = useState(nowPageState);
   let [lgnFrmAct, setlgnFrmAct] = useState(false);
   let [bgDarkAct, setBgDarkAct] = useState(false);
-  let [loading, setLoading] = useState(true);
+  let [userData, setUserData] = useState(null);
+  // let [loading, setLoading] = useState(true);
 
   const stateFunctions = {
     setNavBtnAct,
@@ -58,14 +63,27 @@ function App() {
     setBgDarkAct,
   };
 
-  setTimeout(() => {
-    setLoading(false);
-  }, 900);
+  // 최초 랜더링 시 로그인 정보 검증
+  useEffect(() => {
+    async function fetchData() {
+      const result = await axios.get('http://localhost:8080/userdata', 
+      { withCredentials: 'include' });
+      setUserData(result.data);
+      console.log('로그인 정보확인', result.data)
+    }
+    fetchData();
+  }, [])
+
+
+
+  // setTimeout(() => {
+  //   setLoading(false);
+  // }, 900);
 
   return (
     <BrowserRouter basename={process.env.PUBLIC_URL}>
 
-      <Loading active={loading} />
+      {/* <Loading active={loading} /> */}
 
       {/* background shadow animation */}
       <BgDarker active={bgDarkAct} stateFuncs={stateFunctions}></BgDarker>
@@ -81,7 +99,7 @@ function App() {
         <div className="middleSection">
 
           {/* <!-- 네비게이션바 --> */}
-          <Nav btnList={navBtnList} btnAct={navBtnAct} stateFuncs={stateFunctions} />
+          <Nav btnList={navBtnList} btnAct={navBtnAct} stateFuncs={stateFunctions} userData={userData} />
           {/* <!-- /네비게이션바 --> */}
 
           {/* <!-- Content --> */}

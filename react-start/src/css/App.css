@@ -1,6 +1,14 @@
-@font-face {
+/* @font-face {
   font-family: 'Jamsil';
   src: url('../../public/Jamsil.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+} */
+
+
+@font-face {
+  font-family: 'SCDream';
+  src: url('../../public/SCDream3.otf') format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -14,9 +22,10 @@ body {
   width: 100%;
   height: 100%;
 
-  font-family: 'Jamsil';
+  font-family: 'SCDream';
   background-color: rgb(41, 41, 41);
   margin: 0px;
+  user-select : none;
 }
 
 table {
@@ -128,22 +137,20 @@ ul {
   background-color: rgb(41, 41, 41);
 }
 
-/* blog, board 리스트 글자 크기 */
-.boardListTitle {
-  font-size: 13px;
-  color: white;
-  letter-spacing: 1px;
-}
-
 
 
 .content_box {
+  display: flex;
+  /* align-items: center; */
+  margin: 0 auto;
+  flex-direction: column;
   position: absolute;
   /* top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px; */
-  background-color: steelblue;
+  /* background-color: steelblue; */
+  width: 70%;
   height: auto;
   clear: both;
   float: left;

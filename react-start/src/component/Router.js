@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
-// import { useAsync } from "react-async";
+import '../css/board.css'
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 
 const Home = () => {
   return (
@@ -42,13 +45,14 @@ const Blog = () => {
 }
 
 const Board = () => {
+  // 게시판 데이터 state
   const [boardData, setBoardData] = useState([]);
 
+  // axios 요청으로 데이터를 받아 boardData state에 넣음
   useEffect(() => {
     async function fetchData() {
       try {
         const response = await axios.get("http://localhost:8080/board/data");
-        console.log(response);
         setBoardData(response.data);
 
       } catch (error) {
@@ -58,29 +62,60 @@ const Board = () => {
     fetchData();
   }, []);
 
-  function TableCell(props) {
-    return (
-      <tr>
-        <td className="title">
-          <span>{props.title}</span>
+  // 게시판 표 최상단 제목 컴포넌트
+  function TableCellTitle(props) {
+    function Td(props) {
+      return (
+        <td className={props.classTd}>
+          <span>{props.desc}</span>
         </td>
-        <td className="author">
+      );
+    }
+    return (
+      <tr className="boardListTitle">
+
+        <td className="board_title" style={{ textAlign: "center" }}>
+          <span>{props.desc1}</span>
+        </td>
+        <Td classTd="board_author" desc={props.desc2}></Td>
+        <Td classTd="board_good" desc={props.desc3}></Td>
+        <Td classTd="board_created" desc={props.desc4}></Td>
+      </tr>
+    );
+  }
+
+  //게시판 표 내용 컴포넌트
+  function TableCell(props) {
+    const titleLink = "/board/" + props.id;
+    let [fullCreatedDate] = props.created.split("T");
+
+    return (
+      <tr className="boardListTitle">
+
+        <td className="board_title">
+          <Link to={titleLink}>
+            <span>{props.title}</span>
+          </Link>
+          <span className="board_comment"> (0)</span>
+        </td>
+        <td className="board_author">
           <span>{props.author}</span>
         </td>
-        <td className="view">
+        <td className="board_view">
           <span>{props.view}</span>
         </td>
-        <td className="created">
-          <span>{props.created}</span>
+        <td className="board_created">
+          <span>{fullCreatedDate}</span>
         </td>
       </tr>
     );
   }
 
+  //게시판 데이터를 바탕으로 array 생성
   const array = [];
   boardData.forEach(e => {
     array.push(
-      <TableCell key={e.id} title={e.title} author={e.author} view={e.id} created={e.created}></TableCell>
+      <TableCell key={e.id} id={e.id} title={e.title} author={e.author} view={e.view} created={e.created}></TableCell>
     );
   });
 
@@ -89,30 +124,133 @@ const Board = () => {
       <Link to={"/board/write"}>
         <span>글쓰기</span>
       </Link>
-      <table className="">
-        <tbody className="boardTable">
-          <TableCell title="제목" author="글쓴이" view="조회수" created="날짜"></TableCell>
+      <table className="boardTable">
+        <tbody>
+          <TableCellTitle desc1="제목" desc2="글쓴이" desc3="조회수" desc4="날짜"></TableCellTitle>
           {array}
         </tbody>
       </table>
-
     </div>
-  )
+  );
 }
 
 const BoardNew = () => {
+
+  let title = '';
+  let postData = '';
+
+  const postBoard = async () => {
+    console.log(title, postData)
+    try {
+      const result = await axios.post('http://localhost:8080/board/post', {
+        title: title,
+        content: postData,
+      });
+      console.log(result)
+    } catch {
+    }
+  }
+
+
   return (
     <div className="content_box ani_fadeIn" id="board">
-      <div>
-        title
-      </div>
-      <div>
-        content
-      </div>
-      <a href="/board/write/post"><span>write</span></a>
+      <form>
+        <div className='board_post_title'>
+          <input type="text" placeholder='제목' onChange={(event) => {
+            title = event.target.value;
+          }} />
+        </div>
+
+        <div className='board_post_content'>
+          <CKEditor
+            editor={ClassicEditor}
+            onChange={(event, editor) => {
+              postData = editor.getData();
+            }}
+          />
+        </div>
+        <div className='board_post_complete'><button onClick={postBoard}>발행</button></div>
+      </form>
 
     </div>
   )
 }
 
-export { Home, Blog, Board, BoardNew }; 
+export { Home, Blog, Board, BoardNew };
+
+
+
+
+// const BoardNew = () => {
+
+//   return (
+//     <div className="content_box ani_fadeIn" id="board">
+//       <form >
+//         <div className='board_post_title'>
+//           <input type="text" name="title" placeholder='제목'/>
+//         </div>
+
+//         <div className='board_post_content'>
+//           <CKEditor
+//             editor={ClassicEditor}
+//             data="글을 입력해보세요!"
+//             config={{
+//               // 여기에 config 입력
+//               // toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList'],
+//               // toolbar: ["selectall",
+//               // "undo",
+//               // "redo",
+//               // "bold",
+//               // "italic",
+//               // "blockquote",
+//               // "link",
+//               // "ckfinder",
+//               // "uploadimage",
+//               // "imageupload",
+//               // "heading",
+//               // "imagetextalternative",
+//               // "toggleimagecaption",
+//               // "imagestyle:inline",
+//               // "imagestyle:alignleft",
+//               // "imagestyle:alignright",
+//               // "imagestyle:aligncenter",
+//               // "imagestyle:alignblockleft",
+//               // "imagestyle:alignblockright",
+//               // "imagestyle:block",
+//               // "imagestyle:side",
+//               // "imagestyle:wraptext",
+//               // "imagestyle:breaktext",
+//               // "indent",
+//               // "outdent",
+//               // "numberedlist",
+//               // "bulletedlist",
+//               // "mediaembed",
+//               // "inserttable",
+//               // "tablecolumn",
+//               // "tablerow",
+//               // "mergetablecells"]
+//             }}
+//             locale= {{uiLanguage: "ko"}}
+//             onReady={editor => {
+//               // You can store the "editor" and use when it is needed.
+//               console.log('Editor is ready to use!', editor);
+//             }}
+//             onChange={(event, editor) => {
+//               const data = editor.getData();
+//               console.log({ event, editor, data });
+//               console.log(editor.ui.componentFactory)
+//             }}
+//             onBlur={(event, editor) => {
+//               console.log('Blur.', editor);
+//             }}
+//             onFocus={(event, editor) => {
+//               console.log('Focus.', editor);
+//             }}
+//           />
+//         </div>
+//         <div className='board_post_complete'><button>발행</button></div>
+//       </form>
+
+//     </div>
+//   )
+// }
