@@ -65,7 +65,7 @@ function App() {
   // 최초 랜더링 시 로그인 정보 검증
   useEffect(() => {
     async function fetchData() {
-      const result = await axios.get('http://localhost:8080/userdata',
+      const result = await axios.get('/userdata',
         { withCredentials: 'include' }
       );
       setUserData(result.data);

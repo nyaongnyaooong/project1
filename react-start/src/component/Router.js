@@ -54,7 +54,7 @@ const Board = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/board/data");
+        const response = await axios.get("/board/data");
         setBoardData(response.data);
 
       } catch (error) {
@@ -146,7 +146,7 @@ const BoardNew = () => {
   const postBoard = async () => {
     console.log(title, postData)
     try {
-      const response = await axios.post('http://localhost:8080/board/post',
+      const response = await axios.post('/board/post',
         {
           title: title,
           content: postData,
@@ -201,7 +201,7 @@ const BoardPost = () => {
   //삭제 버튼 누르면 삭제 요청하는 함수
   const deleteBoard = () => {
     const fetchData = async () => {
-      const response = await axios.delete('http://localhost:8080/board/delete/' + id,
+      const response = await axios.delete('/board/delete/' + id,
         { withCredentials: 'include' }
       );
       const { result, error } = response.data;
@@ -214,7 +214,7 @@ const BoardPost = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await axios.get('http://localhost:8080/board/' + id,
+        const result = await axios.get('/board/' + id,
           { withCredentials: 'include' }
         );
         const { boardData, userData } = result.data;

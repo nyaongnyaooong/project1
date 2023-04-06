@@ -43,7 +43,7 @@ const Nav = (props) => {
       return (
         <div className="nav_r_section">
           <span>{userData.userid}</span>
-          <a href="http://localhost:8080/logout"><button className="btn_login_section">LogOut</button></a>
+          <a href="/logout"><button className="btn_login_section">LogOut</button></a>
         </div>
       )
     }

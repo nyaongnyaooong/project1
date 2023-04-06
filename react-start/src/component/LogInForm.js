@@ -39,7 +39,7 @@ const LogInForm = (props) => {
 
   return (
     <div className={(active) ? "login_box ani_fadeInUp" : "login_box zhide"}>
-      <form action="http://localhost:8080/login/post" method="POST">
+      <form action="/login/post" method="POST">
         <FormGroup></FormGroup>
 
         <FormGroup>
