@@ -9,9 +9,7 @@ MongoClient.connect(dbURL, (err, result) => {
   if (err) {
     return console.log(err);
   }
-
   db = result.db('project1');
-  console.log('DB connected.');
 
 });
 

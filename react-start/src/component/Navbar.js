@@ -39,11 +39,10 @@ const Nav = (props) => {
   }
 
   function BtnRightSect() {
-    console.log(userData)
     if (userData) {
       return (
         <div className="nav_r_section">
-          <span>환영합니다 {userData.userid}님</span>
+          <span>{userData.userid}</span>
           <a href="http://localhost:8080/logout"><button className="btn_login_section">LogOut</button></a>
         </div>
       )

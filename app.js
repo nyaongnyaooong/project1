@@ -50,7 +50,6 @@ client.connect(err => {
 
 
 
-
 //MySQL 추가
 
 // const mysql = require('mysql');
@@ -75,7 +74,7 @@ app.use("/board*", async (req, res, next) => {
     });
     next();
   } catch {
-    console.log('sqldb 접속불가')
+    console.log('sqldb 접속불가');
     next();
   }
 });
@@ -100,80 +99,195 @@ app.use("/board*", async (req, res, next) => {
 // }
 // mysqlConn.connect();
 
-
-
-
 //jwt 인증 라우터
 const jwt = require(path.join(__dirname, './modules/jwt'));
 
+// 토큰 검증 함수
+
+const jwtExam = (token) => {
+  // JWT Token : Header . Payload . Signature
+  const splitToken = token.split('.');
+
+  const encodedHeader = splitToken[0];
+  const encodedPayload = splitToken[1];
+  const signature = splitToken[2];
+
+  // Header와 Payload로 Signature 생성
+  const tokenSignature = jwt.createSignature(encodedHeader, encodedPayload);
+
+  // token Signature와 비교하여 검증
+  if (signature != tokenSignature) return false;
+
+  //payload를 디코딩하여 req.user에 넣음
+  //JSON => 자바스크립트 객체화
+  const user = JSON.parse(Buffer.from(encodedPayload, 'base64').toString('utf-8'));
+  return user;
+}
+
 //토큰 검증 middleware
-app.use((req, res, next) => {
+app.use('*', (req, res, next) => {
   try {
     const { AccessToken } = req.cookies;
-    console.log('cookie = ' + req.cookies)
-    console.log('JWT = ' + AccessToken)
-    // console.log(AccessToken);
-    const encodedHeader = AccessToken.split('.')[0];
-    const encodedPayload = AccessToken.split('.')[1];
-    const signature = AccessToken.split('.')[2];
+    if(!AccessToken) throw new Error('no cookie');
 
-    const tokenSignature = jwt.createSignature(encodedHeader, encodedPayload);
+    console.log('JWT Token Exam -', AccessToken);
+    const userData = jwtExam(AccessToken);
+    if (!userData) throw new Error('poisoned cookie');
 
-    if (signature != tokenSignature) throw new Error('poisoned cookie');
-
-    //payload를 디코딩하여 req.user에 넣음
-    //JSON => 자바스크립트 객체화
-    const user = JSON.parse(Buffer.from(encodedPayload, 'base64').toString('utf-8'));
-
-    req.user = {
-      ...user
-    };
+    req.user = { ...userData };
     next();
-
   } catch {
     next();
   }
 });
 
 
+
+
+// //토큰 검증 middleware
+// app.use((req, res, next) => {
+//   try {
+//     const { AccessToken } = req.cookies;
+//     console.log('cookie = ' + req.cookies)
+//     console.log('JWT = ' + AccessToken)
+//     // console.log(AccessToken);
+//     const encodedHeader = AccessToken.split('.')[0];
+//     const encodedPayload = AccessToken.split('.')[1];
+//     const signature = AccessToken.split('.')[2];
+
+//     const tokenSignature = jwt.createSignature(encodedHeader, encodedPayload);
+
+//     if (signature != tokenSignature) throw new Error('poisoned cookie');
+
+//     //payload를 디코딩하여 req.user에 넣음
+//     //JSON => 자바스크립트 객체화
+//     const user = JSON.parse(Buffer.from(encodedPayload, 'base64').toString('utf-8'));
+
+//     req.user = {
+//       ...user
+//     };
+//     next();
+
+//   } catch {
+//     next();
+//   }
+// });
+
+
+// 게시판 - 게시글 list data read
 app.get("/board/data", async (req, res) => {
   try {
-    let [rows] = await mysqlDB.query("SELECT id, title, author, view, created from board");
-    console.log('sql요청');
-    res.send(rows);
+    console.log('SQL Request - 게시판 리스트 요청');
+    const readReqQuery = `
+    SELECT id, title, author, view, created 
+    FROM board
+    `;
+    let [ result ] = await mysqlDB.query(readReqQuery);
+    res.send(result);
   } catch (error) {
     console.error(error)
   }
 });
 
 
+// 게시글 create
 app.post("/board/post", async (req, res) => {
   const { title, content } = req.body;
-  console.log(title, content)
+  const { userid } = req.user;
+
+  console.log('SQL Request - 게시글 추가')
   try {
-    const sendQuery = `
+    if (!userid) throw new Error('유저 로그인 정보가 없습니다');
+    const createReqQuery = `
     INSERT INTO board(title, content, created, author, view)
-    VALUES('${title}', '${content}', NOW(), 'admin', 0)
+    VALUES('${title}', '${content}', NOW(), '${userid}', 0)
     `;
-    const result = await mysqlDB.query(sendQuery);
-    res.send(result);
+    const [ result ] = await mysqlDB.query(createReqQuery);
+    // console.log(result);
+    if (result.affectedRows) res.send({result: true, error: false});
+    else throw new Error('db 추가 실패');
   } catch (error) {
     console.error(error);
+    // 400 bad request
+    // 에러 세분화 필요
+    res.status(400).send({result: false, error: error});
   }
 
 });
 
+// 게시글 read
+app.get('/board/:id', async (req, res) => {
+  const { id } = req.params;
+  const userData = req.user;
+  try {
+    console.log('SQL Request - 게시글', id, '번')
+    const [rows] = await mysqlDB.query(`
+      SELECT id, title, content, author, view, created 
+      FROM board 
+      WHERE id=${id}
+      `
+    );
+    const objectSend = {
+      boardData: rows[0],
+      userData: userData
+    };
+    // console.log('post sql요청', objectSend);
+    res.send(objectSend);
+  } catch (error) {
+    console.error(error)
+  }
+});
+
+// board delete
+app.delete('/board/delete/:id', async(req, res) => {
+  const { id } = req.params;
+  const checkReqQuery = `
+    SELECT author
+    FROM board
+    WHERE id='${ id }'
+  `;
+  const deleteReqQuery = `
+    DELETE FROM board
+    WHERE id='${ id }';
+  `;
+
+  try {
+    const [ checkResult ] = await mysqlDB.query(checkReqQuery);
+    const { author } = checkResult[0];
+
+    if(author !== req.user.userid) throw new Error('유저 정보 불일치');
+
+    const [ delResult ] = await mysqlDB.query(deleteReqQuery);
+    // console.log(delResult);
+    if(delResult.affectedRows) res.send({result: true, error: false});
+    else throw new Error('db 삭제 실패');
+
+  } catch (error) {
+    // 400 bad request
+    // 에러 세분화 필요
+    res.send({result: false, error: error});
+  }
+
+});
+
+
+
+
+
+
+
+
+
+
 app.get('/userdata', (req, res) => {
-  // const cookie = req.cookies
-  // console.log('cookie = ', cookie)
   const userData = req.user;
   console.log("유저 데이터 요청", userData);
   res.send(userData);
 });
 
-app.get('/logout', (req, res)=>{
+app.get('/logout', (req, res) => {
   // 쿠키 삭제
-  res.clearCookie('AccessToken', {path: '/'})
+  res.clearCookie('AccessToken', { path: '/' })
   res.redirect('/')
 })
 
@@ -182,8 +296,6 @@ app.get('/logout', (req, res)=>{
 //메인 blog 관련 라우터
 app.use('/', require(path.join(__dirname, './routes/blog.js')));
 
-//게시판 관련 라우터
-app.use('/', require(path.join(__dirname, './routes/board.js')));
 
 //게시판 관련 라우터
 app.use('/', require(path.join(__dirname, './routes/acount.js')));

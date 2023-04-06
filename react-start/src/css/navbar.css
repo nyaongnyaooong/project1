@@ -94,7 +94,7 @@ button {
   height: 30px;
   flex: 3;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .nav_m_section a {
@@ -113,7 +113,7 @@ button {
 
 .nav_m_section li {
   float: left;
-  margin-left: 30px;
+  margin-left: 10px;
   font-weight: 700;
 }
 
@@ -148,4 +148,9 @@ button {
   cursor: pointer;
   color: steelblue;
   text-decoration: none;
+}
+
+.nav_r_section span {
+  color: blueviolet;
+  font-size: 15px;
 }

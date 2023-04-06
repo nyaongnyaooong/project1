@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import '../css/board.css'
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-
+// 메인 소개 페이지
 const Home = () => {
   return (
     <div className="content_box visible ani_fadeIn" id="home">
@@ -30,6 +30,7 @@ const Home = () => {
   )
 }
 
+// 블로그 페이지
 const Blog = () => {
   return (
     <div className="content_box ani_fadeIn" id="blog">
@@ -44,13 +45,14 @@ const Blog = () => {
   )
 }
 
+// 게시판 메인 페이지
 const Board = () => {
   // 게시판 데이터 state
   const [boardData, setBoardData] = useState([]);
 
   // axios 요청으로 데이터를 받아 boardData state에 넣음
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:8080/board/data");
         setBoardData(response.data);
@@ -58,7 +60,7 @@ const Board = () => {
       } catch (error) {
         console.error(error);
       }
-    }
+    };
     fetchData();
   }, []);
 
@@ -134,26 +136,36 @@ const Board = () => {
   );
 }
 
+// 게시판 새로운 글 포스팅 페이지
 const BoardNew = () => {
-
+  const navigate = useNavigate();
   let title = '';
   let postData = '';
 
+  //발행 함수
   const postBoard = async () => {
     console.log(title, postData)
     try {
-      const result = await axios.post('http://localhost:8080/board/post', {
-        title: title,
-        content: postData,
-      });
-      console.log(result)
-    } catch {
+      const response = await axios.post('http://localhost:8080/board/post',
+        {
+          title: title,
+          content: postData,
+        },
+        { withCredentials: 'include' }
+      );
+      const { result, error } = response.data;
+      if(result) navigate('/board');
+      else throw new Error(error);
+    } catch (error) {
+      console.log(error);
     }
   }
 
-
   return (
     <div className="content_box ani_fadeIn" id="board">
+      <button onClick={() => {navigate('/');}}>1</button>
+      <button onClick={() => {navigate('/blog');}}>2</button>
+      <button onClick={() => {navigate('/board');}}>3</button>
       <form>
         <div className='board_post_title'>
           <input type="text" placeholder='제목' onChange={(event) => {
@@ -169,88 +181,78 @@ const BoardNew = () => {
             }}
           />
         </div>
-        <div className='board_post_complete'><button onClick={postBoard}>발행</button></div>
+        <div className='board_post_complete'><button onClick={ postBoard }>발행</button></div>
       </form>
 
     </div>
   )
 }
 
-export { Home, Blog, Board, BoardNew };
+// 게시판 글 읽는 페이지
+const BoardPost = () => {
+  //router의 querystring /board/:id
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  let [boardData, setBoardData] = useState(null);
+  // let [user, setUser] = useState(null);
+  let [isUserMatch, setIsUserMatch] = useState(false);
+
+  //삭제 버튼 누르면 삭제 요청하는 함수
+  const deleteBoard = () => {
+    const fetchData = async () => {
+      const response = await axios.delete('http://localhost:8080/board/delete/' + id,
+        { withCredentials: 'include' }
+      );
+      const { result, error } = response.data;
+      if (result) navigate('/board');
+      else console.log(error);
+    };
+    fetchData();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await axios.get('http://localhost:8080/board/' + id,
+          { withCredentials: 'include' }
+        );
+        const { boardData, userData } = result.data;
+
+        if (boardData.author === userData.userid) setIsUserMatch(true);
+        setBoardData(boardData);
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  if (isUserMatch) {
+    return (
+      <div className='content_box'>
+        <button onClick={deleteBoard}>삭제</button>
+        <div>{boardData.title}</div>
+
+        {/* <div>{content}</div> */}
+        <div dangerouslySetInnerHTML={{ __html: boardData.content }}></div>
+      </div>
+    );
+  }
+
+  if (boardData) {
+    return (
+      <div className='content_box'>
+        <div>{boardData.title}</div>
+        {/* <div>{content}</div> */}
+        <div dangerouslySetInnerHTML={{ __html: boardData.content }}></div>
+      </div>
+    );
+  }
+
+  return;
+}
 
 
-
-
-// const BoardNew = () => {
-
-//   return (
-//     <div className="content_box ani_fadeIn" id="board">
-//       <form >
-//         <div className='board_post_title'>
-//           <input type="text" name="title" placeholder='제목'/>
-//         </div>
-
-//         <div className='board_post_content'>
-//           <CKEditor
-//             editor={ClassicEditor}
-//             data="글을 입력해보세요!"
-//             config={{
-//               // 여기에 config 입력
-//               // toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList'],
-//               // toolbar: ["selectall",
-//               // "undo",
-//               // "redo",
-//               // "bold",
-//               // "italic",
-//               // "blockquote",
-//               // "link",
-//               // "ckfinder",
-//               // "uploadimage",
-//               // "imageupload",
-//               // "heading",
-//               // "imagetextalternative",
-//               // "toggleimagecaption",
-//               // "imagestyle:inline",
-//               // "imagestyle:alignleft",
-//               // "imagestyle:alignright",
-//               // "imagestyle:aligncenter",
-//               // "imagestyle:alignblockleft",
-//               // "imagestyle:alignblockright",
-//               // "imagestyle:block",
-//               // "imagestyle:side",
-//               // "imagestyle:wraptext",
-//               // "imagestyle:breaktext",
-//               // "indent",
-//               // "outdent",
-//               // "numberedlist",
-//               // "bulletedlist",
-//               // "mediaembed",
-//               // "inserttable",
-//               // "tablecolumn",
-//               // "tablerow",
-//               // "mergetablecells"]
-//             }}
-//             locale= {{uiLanguage: "ko"}}
-//             onReady={editor => {
-//               // You can store the "editor" and use when it is needed.
-//               console.log('Editor is ready to use!', editor);
-//             }}
-//             onChange={(event, editor) => {
-//               const data = editor.getData();
-//               console.log({ event, editor, data });
-//               console.log(editor.ui.componentFactory)
-//             }}
-//             onBlur={(event, editor) => {
-//               console.log('Blur.', editor);
-//             }}
-//             onFocus={(event, editor) => {
-//               console.log('Focus.', editor);
-//             }}
-//           />
-//         </div>
-//         <div className='board_post_complete'><button>발행</button></div>
-//       </form>
-
-//     </div>
-//   )
-// }
+export { Home, Blog, Board, BoardNew, BoardPost };

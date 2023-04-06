@@ -6,9 +6,8 @@ import './css/animation.css';
 import LogInForm from './component/LogInForm'
 import Nav from './component/Navbar'
 // import Loading from './component/Loading'
-import { Home, Blog, Board, BoardNew } from './component/Router'
+import { Home, Blog, Board, BoardNew, BoardPost } from './component/Router'
 import axios from 'axios';
-axios.defaults.withCredentials = true;
 
 
 
@@ -66,10 +65,10 @@ function App() {
   // 최초 랜더링 시 로그인 정보 검증
   useEffect(() => {
     async function fetchData() {
-      const result = await axios.get('http://localhost:8080/userdata', 
-      { withCredentials: 'include' });
+      const result = await axios.get('http://localhost:8080/userdata',
+        { withCredentials: 'include' }
+      );
       setUserData(result.data);
-      console.log('로그인 정보확인', result.data)
     }
     fetchData();
   }, [])
@@ -109,6 +108,7 @@ function App() {
               <Route path="/blog" element={<Blog></Blog>}></Route>
               <Route path="/board" element={<Board></Board>}></Route>
               <Route path="/board/write" element={<BoardNew></BoardNew>}></Route>
+              <Route path="/board/:id" element={<BoardPost></BoardPost>}></Route>
             </Routes>
           </div>
           {/* <!-- /Content --> */}
