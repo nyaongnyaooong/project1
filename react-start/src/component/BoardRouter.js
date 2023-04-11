@@ -30,21 +30,6 @@ const Home = () => {
   )
 }
 
-// 블로그 페이지
-const Blog = () => {
-  return (
-    <div className="content_box ani_fadeIn" id="blog">
-      <p>
-        blogblogblogblogblogblogblogblogblogblogblog<br />
-        blogblogblogblogblogblogblogblogblogblogblog<br />
-        blogblogblogblogblogblogblogblogblogblogblog<br />
-        blogblogblogblogblogblogblogblogblogblogblog<br />
-        blogblogblogblogblogblogblogblogblogblogblog<br />
-      </p>
-    </div>
-  )
-}
-
 // 게시판 메인 페이지
 const Board = () => {
   // 게시판 데이터 state
@@ -74,6 +59,7 @@ const Board = () => {
       );
     }
     return (
+
       <tr className="boardListTitle">
 
         <td className="board_title" style={{ textAlign: "center" }}>
@@ -132,12 +118,13 @@ const Board = () => {
           {array}
         </tbody>
       </table>
+      <Link to="/board?s=1"><div>다음페이지</div></Link>
     </div>
   );
 }
 
 // 게시판 새로운 글 포스팅 페이지
-const BoardNew = () => {
+const BoardPostCreate = () => {
   const navigate = useNavigate();
   let title = '';
   let postData = '';
@@ -150,11 +137,10 @@ const BoardNew = () => {
         {
           title: title,
           content: postData,
-        },
-        { withCredentials: 'include' }
+        }
       );
       const { result, error } = response.data;
-      if(result) navigate('/board');
+      if (result) navigate('/board');
       else throw new Error(error);
     } catch (error) {
       console.log(error);
@@ -163,9 +149,6 @@ const BoardNew = () => {
 
   return (
     <div className="content_box ani_fadeIn" id="board">
-      <button onClick={() => {navigate('/');}}>1</button>
-      <button onClick={() => {navigate('/blog');}}>2</button>
-      <button onClick={() => {navigate('/board');}}>3</button>
       <form>
         <div className='board_post_title'>
           <input type="text" placeholder='제목' onChange={(event) => {
@@ -181,47 +164,132 @@ const BoardNew = () => {
             }}
           />
         </div>
-        <div className='board_post_complete'><button onClick={ postBoard }>발행</button></div>
+        <div className='board_post_complete'><button onClick={postBoard}>발행</button></div>
       </form>
-
     </div>
   )
 }
 
+//게시글 수정 페이지
+const BoardPostUpdate = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+
+  let [postData, setPostData] = useState(null);
+  let [isUserMatch, setIsUserMatch] = useState(false);
+  let [title, setTitle] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/board/' + id);
+        const { result, error } = response.data;
+        if (!result) throw new Error(error);
+
+        const { sqlData, userData } = result;
+
+        if (sqlData.author === userData.userid || userData.userid === 'admin') setIsUserMatch(true);
+        setPostData(sqlData);
+        setTitle(sqlData.title);
+
+
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [id])
+
+  // 발행 버튼 - 수정요청 함수
+  const putPost = async () => {
+    try {
+      const response = await axios.put('/board/put/' + id,
+        {
+          title: title,
+          content: postData.content,
+        }
+      );
+
+      const { result, error } = response.data;
+      if (result) {
+        navigate('/board');
+      }
+      else throw new Error(error);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  if (isUserMatch) {
+    return (
+      <div className="content_box ani_fadeIn" id="board">
+        <form>
+          <div className='board_post_title'>
+            <input type="text" placeholder='제목' value={title} onChange={(event) => {
+              setTitle(event.target.value);
+            }} />
+          </div>
+
+          <div className='board_post_content'>
+            <CKEditor
+              editor={ClassicEditor}
+              data={postData.content}
+              onChange={(event, editor) => {
+                console.log(postData.content)
+                postData.content = editor.getData();
+              }}
+            />
+          </div>
+          <div className='board_post_complete'><button onClick={putPost}>발행</button></div>
+        </form>
+      </div>
+    )
+  }
+  return;
+}
+
 // 게시판 글 읽는 페이지
-const BoardPost = () => {
+const BoardPostRead = () => {
   //router의 querystring /board/:id
   const { id } = useParams();
   const navigate = useNavigate();
 
   let [boardData, setBoardData] = useState(null);
-  // let [user, setUser] = useState(null);
   let [isUserMatch, setIsUserMatch] = useState(false);
 
   //삭제 버튼 누르면 삭제 요청하는 함수
-  const deleteBoard = () => {
+  const deletePost = () => {
     const fetchData = async () => {
-      const response = await axios.delete('/board/delete/' + id,
-        { withCredentials: 'include' }
-      );
-      const { result, error } = response.data;
-      if (result) navigate('/board');
-      else console.log(error);
+      try {
+        const response = await axios.delete('/board/delete/' + id);
+        const { result, error } = response.data;
+        if (result) navigate('/board');
+        else throw new Error(error);
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchData();
   };
 
+  //수정 버튼 누름
+  const putBoard = () => {
+    navigate('/board/put/' + id)
+  };
+
+  // 게시물 데이터 get
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await axios.get('/board/' + id,
-          { withCredentials: 'include' }
-        );
-        const { boardData, userData } = result.data;
+        const response = await axios.get('/board/' + id);
+        const { result, error } = response.data;
+        if (!result) throw new Error(error);
 
-        if (boardData.author === userData.userid) setIsUserMatch(true);
-        setBoardData(boardData);
+        const { sqlData, userData } = result;
 
+        if (sqlData.author === userData.userid || userData.userid === 'admin') setIsUserMatch(true);
+        setBoardData(sqlData);
       } catch (error) {
         console.log(error);
       }
@@ -232,7 +300,8 @@ const BoardPost = () => {
   if (isUserMatch) {
     return (
       <div className='content_box'>
-        <button onClick={deleteBoard}>삭제</button>
+        <button onClick={deletePost}>삭제</button>
+        <button onClick={putBoard}>수정</button>
         <div>{boardData.title}</div>
 
         {/* <div>{content}</div> */}
@@ -254,5 +323,4 @@ const BoardPost = () => {
   return;
 }
 
-
-export { Home, Blog, Board, BoardNew, BoardPost };
+export { Home, Board, BoardPostCreate, BoardPostRead, BoardPostUpdate };

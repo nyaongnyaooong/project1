@@ -1,9 +1,20 @@
 const express = require('express');
-const router = require('express').Router();
+const router = express.Router();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const salt = 'test';
+
+const hashPW = (pw, salt) => {
+  salt = salt || crypto.randomBytes(64).toString('hex');
+  const repeat = parseInt(process.env.HASH_REPEAT_NUM);
+  const algorithm = process.env.HASH_ALGORITHM;
+  const key = crypto.pbkdf2Sync(pw, salt, repeat, 64, algorithm).toString('hex');
+  return {
+    salt: salt,
+    key: key
+  };
+}
 
 
 //MongoDB Atlas Setting
@@ -16,7 +27,7 @@ MongoClient.connect(dbURL, (err, result) => {
   }
 
   db = result.db('project1');
-  console.log('DB connected.');
+  console.log('acount DB connected.');
 
 
 });
@@ -25,85 +36,93 @@ const jwt = require(path.join(__dirname, '../modules/jwt'));
 
 
 
-
-
-
-
-
-
-//로그인 페이지
-router.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/html/acount/login.html'));
-});
-
-//로그아웃 페이지
-router.get('/logout', (req, res) => {
-  // 토큰 제거
-  res.clearCookie('AccessToken', {path: '/'})
-  res.redirect('/')
-});
-
-
-//로그인 요청
+// 로그인 요청
 router.post('/login/post', async (req, res) => {
-  const {id, pw} = req.body;
-  const result = await db.collection('user').findOne({ name: id });
+  const { loginID, loginPW } = req.body;
 
   try {
-    if (!result) {
-      throw new Error('일치하는 아이디가 존재하지 않음');
-    } else if (result.pw != pw) {
-      throw new Error('비밀번호 틀림');
+    // db에서 요청한 ID에 해당하는 data 가져옴
+    const dbResult = await db.collection('user').findOne({ name: loginID });
+    const { name, key, salt } = dbResult;
+    if (!name) throw new Error('일치하는 아이디가 존재하지 않음');
 
-    }
+    // 로그인 요청한 PW 해시화
+    const loginKey = hashPW(loginPW, salt);
+    if (loginKey.key != key) throw new Error('비밀번호 틀림');
+
+    // payload
     const payload = {
-        userid: result.name,
-    }
+      userid: name,
+      exp: '추가예정'
+    };
+
     //JWT 생성
     const token = jwt.createToken(payload);
-    
+
     // 생성한 토큰을 쿠키로 만들어서 브라우저에게 전달
-    res.cookie('AccessToken', token, {
-        path: '/',
-        HttpOnly: true
+    res.cookie('accessToken', token, {
+      path: '/',
+      HttpOnly: true
     });
-    res.redirect('http://localhost:3000/');
-      
-  } catch(err) {
-      console.log(err)
-      res.send('로그인 실패')
+
+    const resResult = {
+      result: true,
+      error: false,
+    };
+    res.send(resResult);
+  } catch (err) {
+    console.log(err)
+    const resResult = {
+      result: false,
+      error: err,
+    };
+    res.send(resResult);
   }
 });
 
-
-//회원가입
-router.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/html/acount/register.html'));
-});
 
 
 //회원가입 요청
 router.post('/register/post', async (req, res) => {
+  let { regID, regPW } = req.body;
+
   try {
-    const duplication = await db.collection('user').findOne({ name: req.body.id });
-    if(duplication) {
-      throw new Error('중복');
-    }
+    // 중복 ID 검사
+    const duplication = await db.collection('user').findOne({ name: regID });
+    if (duplication) throw new Error('ID duplicated');
+
+    // PW Hash화
+    const { salt, key } = hashPW(regPW);
     const counter = await db.collection('counter').findOne({ pw: '1234' });
-    parseInt(counter.LastUserID)
+
+    const idNum = counter.lastUserID + 1;
     const dbObject = {
-      _id: parseInt(counter.LastUserID) + 1,
-      name: req.body.id,
-      pw: req.body.pw,
+      _id: idNum,
+      name: regID,
+      key: key,
+      salt: salt
     }
-    const result = await db.collection('user').insertOne(dbObject);
-  
-    res.redirect('/blog');
-  } catch(err) {
+
+    const addUserResult = await db.collection('user').insertOne(dbObject);
+    const addCounterResult = await db.collection('counter').updateOne({ pw: '1234' }, { $set: { lastUserID: idNum } });
+
+    const resObject = {
+      result: addUserResult,
+      error: false
+    };
+
+    res.send(resObject)
+  } catch (err) {
     console.error(err);
+    const resObject = {
+      result: false,
+      error: err
+    };
+    res.send(resObject);
   }
 
 });
+
 
 
 

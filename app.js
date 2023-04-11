@@ -26,10 +26,7 @@ app.use(cookieParser());
 
 //CORS
 const cors = require('cors');
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(cors());
 
 
 //MongoDB Atlas Setting
@@ -48,6 +45,8 @@ client.connect(err => {
 });
 
 
+
+  
 
 
 //MySQL 추가
@@ -127,16 +126,17 @@ const jwtExam = (token) => {
 //토큰 검증 middleware
 app.use('*', (req, res, next) => {
   try {
-    const { AccessToken } = req.cookies;
-    if(!AccessToken) throw new Error('no cookie');
+    const { accessToken } = req.cookies;
+    if (!accessToken) throw new Error('no cookie');
 
-    console.log('JWT Token Exam -', AccessToken);
-    const userData = jwtExam(AccessToken);
+    console.log('JWT Token Exam -', accessToken);
+    const userData = jwtExam(accessToken);
     if (!userData) throw new Error('poisoned cookie');
 
     req.user = { ...userData };
     next();
   } catch {
+    req.user = false;
     next();
   }
 });
@@ -147,13 +147,13 @@ app.use('*', (req, res, next) => {
 // //토큰 검증 middleware
 // app.use((req, res, next) => {
 //   try {
-//     const { AccessToken } = req.cookies;
+//     const { accessToken } = req.cookies;
 //     console.log('cookie = ' + req.cookies)
-//     console.log('JWT = ' + AccessToken)
-//     // console.log(AccessToken);
-//     const encodedHeader = AccessToken.split('.')[0];
-//     const encodedPayload = AccessToken.split('.')[1];
-//     const signature = AccessToken.split('.')[2];
+//     console.log('JWT = ' + accessToken)
+//     // console.log(accessToken);
+//     const encodedHeader = accessToken.split('.')[0];
+//     const encodedPayload = accessToken.split('.')[1];
+//     const signature = accessToken.split('.')[2];
 
 //     const tokenSignature = jwt.createSignature(encodedHeader, encodedPayload);
 
@@ -181,8 +181,9 @@ app.get("/board/data", async (req, res) => {
     const readReqQuery = `
     SELECT id, title, author, view, created 
     FROM board
+    ORDER BY id DESC
     `;
-    let [ result ] = await mysqlDB.query(readReqQuery);
+    let [result] = await mysqlDB.query(readReqQuery);
     res.send(result);
   } catch (error) {
     console.error(error)
@@ -202,15 +203,54 @@ app.post("/board/post", async (req, res) => {
     INSERT INTO board(title, content, created, author, view)
     VALUES('${title}', '${content}', NOW(), '${userid}', 0)
     `;
-    const [ result ] = await mysqlDB.query(createReqQuery);
+    const [result] = await mysqlDB.query(createReqQuery);
     // console.log(result);
-    if (result.affectedRows) res.send({result: true, error: false});
+    if (result.affectedRows) res.send({ result: true, error: false });
     else throw new Error('db 추가 실패');
   } catch (error) {
     console.error(error);
     // 400 bad request
     // 에러 세분화 필요
-    res.status(400).send({result: false, error: error});
+    res.status(400).send({ result: false, error: error });
+  }
+
+});
+
+
+
+// 게시글 put
+app.put("/board/put/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+  const { userid } = req.user;
+
+  const checkReqQuery = `
+    SELECT author
+    FROM board
+    WHERE id='${id}'
+  `;
+  const putReqQuery = `
+    UPDATE board
+    SET title='${title}', content='${content}'
+    WHERE id='${id}';
+  `;
+
+  console.log('SQL Request - 게시글 수정')
+  try {
+    const [checkResult] = await mysqlDB.query(checkReqQuery);
+    const { author } = checkResult[0];
+
+    if (author !== userid) throw new Error('유저 정보 불일치');
+
+    const [putResult] = await mysqlDB.query(putReqQuery);
+    // console.log(delResult);
+    if (putResult.affectedRows) res.send({ result: true, error: false });
+    else throw new Error('db 수정 실패');
+
+  } catch (error) {
+    // 400 bad request
+    // 에러 세분화 필요
+    res.send({ result: false, error: error });
   }
 
 });
@@ -219,53 +259,73 @@ app.post("/board/post", async (req, res) => {
 app.get('/board/:id', async (req, res) => {
   const { id } = req.params;
   const userData = req.user;
+
+  const putReqQuery = `
+    UPDATE board
+    SET view=view+1
+    WHERE id='${id}';
+  `;
+
+  const readReqQuery = `
+    SELECT id, title, content, author, view, created 
+    FROM board 
+    WHERE id=${id}
+  `;
+
+
   try {
     console.log('SQL Request - 게시글', id, '번')
-    const [rows] = await mysqlDB.query(`
-      SELECT id, title, content, author, view, created 
-      FROM board 
-      WHERE id=${id}
-      `
-    );
+    const [putRes] = await mysqlDB.query(putReqQuery);
+    const [rows] = await mysqlDB.query(readReqQuery);
+    if (!rows) throw new Error('db error')
+
     const objectSend = {
-      boardData: rows[0],
-      userData: userData
+      result: {
+        sqlData: rows[0],
+        userData: userData,
+      },
+      error: false,
     };
-    // console.log('post sql요청', objectSend);
+    // console.log('게시글 sql요청', objectSend);
     res.send(objectSend);
   } catch (error) {
     console.error(error)
+    const objectSend = {
+      result: false,
+      error: error,
+    };
+    res.send(objectSend);
   }
 });
 
 // board delete
-app.delete('/board/delete/:id', async(req, res) => {
+app.delete('/board/delete/:id', async (req, res) => {
   const { id } = req.params;
   const checkReqQuery = `
     SELECT author
     FROM board
-    WHERE id='${ id }'
+    WHERE id='${id}'
   `;
   const deleteReqQuery = `
     DELETE FROM board
-    WHERE id='${ id }';
+    WHERE id='${id}';
   `;
 
   try {
-    const [ checkResult ] = await mysqlDB.query(checkReqQuery);
+    const [checkResult] = await mysqlDB.query(checkReqQuery);
     const { author } = checkResult[0];
 
-    if(author !== req.user.userid) throw new Error('유저 정보 불일치');
+    if (author !== req.user.userid) throw new Error('유저 정보 불일치');
 
-    const [ delResult ] = await mysqlDB.query(deleteReqQuery);
+    const [delResult] = await mysqlDB.query(deleteReqQuery);
     // console.log(delResult);
-    if(delResult.affectedRows) res.send({result: true, error: false});
+    if (delResult.affectedRows) res.send({ result: true, error: false });
     else throw new Error('db 삭제 실패');
 
   } catch (error) {
     // 400 bad request
     // 에러 세분화 필요
-    res.send({result: false, error: error});
+    res.send({ result: false, error: error });
   }
 
 });
@@ -285,11 +345,16 @@ app.get('/userdata', (req, res) => {
   res.send(userData);
 });
 
-app.get('/logout', (req, res) => {
-  // 쿠키 삭제
-  res.clearCookie('AccessToken', { path: '/' })
-  res.redirect('/')
-})
+
+
+
+
+
+
+
+
+
+
 
 
 

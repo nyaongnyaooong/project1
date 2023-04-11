@@ -1,15 +1,17 @@
-const express = require('express');
 const router = require('express').Router();
 const path = require('path');
-const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const salt = 'test';
+
+//dotenv
+require('dotenv').config();
+
+const salt = process.env.SALT;
 
 //JWT 인코딩 함수
 const encode = (text) => {
   const encodedText = Buffer.from(JSON.stringify(text))
-  .toString('base64')
-  .replace(/[=]/g, '');
+    .toString('base64')
+    .replace(/=/g, '');
   return encodedText;
 };
 
@@ -24,32 +26,40 @@ const encode = (text) => {
 // iat : Issued At. 토큰이 발급된 시각을 나타낸다. Numeric Date 형식으로 나타낸다. 이 값으로 토큰이 발급된지 얼마나 오래됐는지 확인할 수 있다.
 // jti : JWT ID. JWT 의 식별자를 나타낸다.
 const createToken = (payload) => {
-    //JWT의 구성 요소 header.payload.signature
+  //JWT의 구성 요소 header.payload.signature
 
-    //header
-    const header = {
-        typ: 'JWT',
-        alg: 'HS256'
-    };
+  //header
+  const header = {
+    typ: 'JWT',
+    alg: 'HS512'
+  };
 
-    //encoding
-    const encodedHeader = encode(header);
-    const encodedPayload = encode(payload);
+  //encoding
+  const encodedHeader = encode(header);
+  const encodedPayload = encode(payload);
 
-    //signature
-    const signature = createSignature(encodedHeader, encodedPayload);
-  
-    const token = encodedHeader + '.' + encodedPayload + '.' + signature;
-                      
-    return token;
+  //signature
+  const signature = createSignature(encodedHeader, encodedPayload);
+
+  const token = encodedHeader + '.' + encodedPayload + '.' + signature;
+
+  return token;
 }
 
 //signature 생성 함수
 const createSignature = (encodedHeader, encodedPayload) => {
-  const signature = crypto.createHmac('sha256', salt)
-  .update(encodedHeader + '.' + encodedPayload)
-  .digest('base64')
-  .replace(/[=]/g, '');
+  const repeat = parseInt(process.env.HASH_REPEAT_NUM);
+  const algorithm = process.env.HASH_ALGORITHM;
+  const plainText = encodedHeader + '.' + encodedPayload;
+  const signature = crypto.pbkdf2Sync(plainText, salt, repeat, 64, algorithm)
+  .toString('base64')
+  .replace(/=/g, '');
+
+  
+  // crypto.createHmac('sha256', salt)
+  //   .update(encodedHeader + '.' + encodedPayload)
+  //   .digest('base64')
+  //   .replace(/[=]/g, '');
 
   return signature;
 };

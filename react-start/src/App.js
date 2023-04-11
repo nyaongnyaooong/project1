@@ -3,27 +3,26 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import './css/App.css';
 import './css/animation.css';
-import LogInForm from './component/LogInForm'
+import { LogInForm, RegisterForm } from './component/LogInForm'
 import Nav from './component/Navbar'
 // import Loading from './component/Loading'
-import { Home, Blog, Board, BoardNew, BoardPost } from './component/Router'
+import { Blog } from './component/BlogRouter'
+import { Home, Board, BoardPostCreate, BoardPostRead, BoardPostUpdate } from './component/BoardRouter'
 import axios from 'axios';
 
 
 
 const BgDarker = (props) => {
   const { active, stateFuncs } = props;
-  const { setBgDarkAct, setlgnFrmAct } = stateFuncs;
+  const { setBgDarkAct, setLgnFrmAct, setRegFrmAct } = stateFuncs;
   const divDark = useRef(null);
 
-  // if(active === "first") {
-  //   setBgDarkAct(false);
-  //   return <div id="fadeOut" className="zhide"></div>
-  // }
-
+  // 검은 배경 클릭 했을 때
   const onClickFunction = () => {
     setBgDarkAct(false);
-    setlgnFrmAct(false);
+    setLgnFrmAct(false);
+    setRegFrmAct(false);
+
     divDark.current.classList.replace("zhide", "ani_fadeOutDark");
     setTimeout(() => {
       divDark.current.classList.replace("ani_fadeOutDark", "zhide");
@@ -36,7 +35,7 @@ const BgDarker = (props) => {
 
 function App() {
   const navBtnList = ["NyaongNyaooong", "Blog", "Board", "menu1", "menu2"];
-  console.log('렌더링됨');
+
   let nowPageState = 0;
   const urlPath = window.location.pathname;
   const comparePath = urlPath.split('/')
@@ -51,29 +50,29 @@ function App() {
   //   console.log("에러발생 : ", error)
   // });
   let [navBtnAct, setNavBtnAct] = useState(nowPageState);
-  let [lgnFrmAct, setlgnFrmAct] = useState(false);
+  let [lgnFrmAct, setLgnFrmAct] = useState(false);
+  let [regFrmAct, setRegFrmAct] = useState(false);
   let [bgDarkAct, setBgDarkAct] = useState(false);
   let [userData, setUserData] = useState(null);
   // let [loading, setLoading] = useState(true);
 
   const stateFunctions = {
     setNavBtnAct,
-    setlgnFrmAct,
+    setLgnFrmAct,
+    setRegFrmAct,
     setBgDarkAct,
+    setUserData,
   };
 
   // 최초 랜더링 시 로그인 정보 검증
   useEffect(() => {
     async function fetchData() {
-      const result = await axios.get('/userdata',
-        { withCredentials: 'include' }
-      );
+      const result = await axios.get('/userdata');
       setUserData(result.data);
     }
     fetchData();
+    console.log('렌더링됨');
   }, [])
-
-
 
   // setTimeout(() => {
   //   setLoading(false);
@@ -107,8 +106,9 @@ function App() {
               <Route path="/" element={<Home></Home>}></Route>
               <Route path="/blog" element={<Blog></Blog>}></Route>
               <Route path="/board" element={<Board></Board>}></Route>
-              <Route path="/board/write" element={<BoardNew></BoardNew>}></Route>
-              <Route path="/board/:id" element={<BoardPost></BoardPost>}></Route>
+              <Route path="/board/write" element={<BoardPostCreate />}></Route>
+              <Route path="/board/:id" element={<BoardPostRead />}></Route>
+              <Route path="/board/put/:id" element={<BoardPostUpdate />}></Route>
             </Routes>
           </div>
           {/* <!-- /Content --> */}
@@ -122,9 +122,10 @@ function App() {
       </div>
       {/* /All Section */}
 
-      {/* <!-- Login Form --> */}
-      <LogInForm active={lgnFrmAct}></LogInForm>
-      {/* /Login Form */}
+      {/* <!-- Login & Register Form --> */}
+      <LogInForm active={lgnFrmAct} />
+      <RegisterForm active={regFrmAct} />
+      {/* /Login & Register Form */}
 
       <div className="footer"></div>
     </BrowserRouter >

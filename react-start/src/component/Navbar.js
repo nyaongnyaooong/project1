@@ -1,10 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import '../css/navbar.css'
 
 const Nav = (props) => {
   const { btnList, btnAct, stateFuncs, userData } = props;
-  const { setNavBtnAct, setlgnFrmAct, setBgDarkAct } = stateFuncs;
+  const { setNavBtnAct, setLgnFrmAct, setBgDarkAct, setRegFrmAct, setUserData } = stateFuncs;
 
   //left section (로고, 이름)
   const BtnLeftSect = () => {
@@ -38,24 +38,35 @@ const Nav = (props) => {
     return btnArray;
   }
 
-  function BtnRightSect() {
-    if (userData) {
-      return (
+  const BtnRightSect = () => {
+    const FormUser = () => {
+    return (
         <div className="nav_r_section">
           <span>{userData.userid}</span>
-          <a href="/logout"><button className="btn_login_section">LogOut</button></a>
+          <button className="btn_login_section" onClick={() => {
+            document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            setUserData(false);
+          }}>LogOut</button>
         </div>
       )
     }
-    return (
-      <div className="nav_r_section">
+
+    const FormAnonymous = () => {
+      return (
+        <div className="nav_r_section">
         <button className="btn_login_section" onClick={() => {
-          setlgnFrmAct(true);
+          setLgnFrmAct(true);
           setBgDarkAct(true);
         }}>LogIn</button>
-        <button className="btn_login_section">Register</button>
+        <button className="btn_login_section" onClick={() => {
+          setRegFrmAct(true);
+          setBgDarkAct(true);
+        }}>Register</button>
       </div>
-    );
+      )
+    }
+
+    return userData ? <FormUser /> : <FormAnonymous />
   };
 
   return (
@@ -63,7 +74,7 @@ const Nav = (props) => {
       {/* Navigationbar left section */}
       <div className="nav_l_section">
         <div className="nav_img_div" >
-          <img src="../68260365.png" className="profileCircle" alt=""></img>
+          <img src="http://localhost:3000/68260365.png" className="profileCircle" alt=""></img>
         </div>
         <BtnLeftSect></BtnLeftSect>
       </div>
