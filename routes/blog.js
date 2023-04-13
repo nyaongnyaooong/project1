@@ -13,28 +13,45 @@ MongoClient.connect(dbURL, (err, result) => {
 
 });
 
+let mysqlDB;
+
+const mysql = require("mysql2/promise");
+router.use("/blog*", async (req, res, next) => {
+  console.log(1)
+  try {
+    mysqlDB = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: process.env.MY_SQL_PW,
+      database: "blog",
+    });
+    console.log('blog sql접속')
+    next();
+  } catch {
+    console.log('sqldb 접속불가');
+    next();
+  }
+});
 
 
 
 
 
 // Main 블로그 Router
-router.get('/blog', (req, res) => {
-  // console.log('123');
-  // const filePath = path.join(__dirname, 'html', 'main.ejs')
-  res.sendFile(path.join(__dirname , '../public/html/blog/blog.html'));
-  // res.sendFile(__dirname + '/index.html');
-});
-
-router.get('/blog/list', async (req, res) => {
+router.get('/blog/title', async (req, res) => {
   try {
-    const result = await db.collection('blog').find({ view: true }).toArray();
-
-    res.send(result);
+    console.log('SQL Request - 블로그 타이틀 리스트 요청');
+    const readReqQuery = `
+    SELECT title, pTitle
+    FROM blogtitle
+    `;
+    const [response] = await mysqlDB.query(readReqQuery);
+    res.send(response);
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
 });
+
 
 
 router.get('/blog/:id', async (req, res) => {
@@ -54,10 +71,10 @@ router.post('/blog/add/post', async (req, res) => {
   //counter collection에서 ID 찾기
   const getID = await db.collection('counter').findOne({ pw: '1234' });
   //counter collection ID 숫자증가
-  const updateID = await db.collection('counter').updateOne({ pw: '1234' }, { $inc : { lastID: 1} });
+  const updateID = await db.collection('counter').updateOne({ pw: '1234' }, { $inc: { lastID: 1 } });
   console.log(getID)
 
-  const {title, content} = req.body;
+  const { title, content } = req.body;
 
   const dbObject = {
     _id: parseInt(getID.lastBlogID) + 1,

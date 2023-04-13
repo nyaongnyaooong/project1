@@ -28,6 +28,16 @@ app.use(cookieParser());
 const cors = require('cors');
 app.use(cors());
 
+const axios = require('axios');
+
+// const getCoinData = setInterval(async () => {
+//   const response = await axios.get('https://api.upbit.com/v1/ticker', {markets: 'KRW-BTC'});
+//   console.log(response);
+// }, 3000);
+
+
+
+
 
 //MongoDB Atlas Setting
 const dbURL = 'mongodb+srv://' + process.env.DB_ID + ':' + process.env.DB_PW + process.env.DB_URL;
@@ -46,7 +56,7 @@ client.connect(err => {
 
 
 
-  
+
 
 
 //MySQL 추가
@@ -66,9 +76,10 @@ const mysql = require("mysql2/promise");
 app.use("/board*", async (req, res, next) => {
   try {
     mysqlDB = await mysql.createConnection({
-      host: "localhost",
+      host: 'svc.sel3.cloudtype.app',
+      port: '31665',
       user: "root",
-      password: process.env.MY_SQL_PW,
+      password: '1458369',
       database: "blog",
     });
     next();
@@ -77,6 +88,28 @@ app.use("/board*", async (req, res, next) => {
     next();
   }
 });
+
+
+// async function getMarketData() {
+//   try {
+//     const options = {
+//       method: 'GET',
+//       url: 'https://api.upbit.com/v1/market/all?isDetails=false',
+//       headers: {accept: 'application/json'}
+//     };
+
+//     const { data } = await axios.request(options);
+    
+//     data.marketAll = data[0].market;
+//     for(let i = 1; i < data.length; i++) {
+//       data.marketAll += ', ' + data[i].market;
+//     }
+
+//     return data;
+
+//   } catch(err) {
+//     console.error(err);
+//   }
 
 // async () => {
 //   try {
@@ -362,7 +395,7 @@ app.get('/userdata', (req, res) => {
 app.use('/', require(path.join(__dirname, './routes/blog.js')));
 
 
-//게시판 관련 라우터
+//유저 데이터 관련 라우터
 app.use('/', require(path.join(__dirname, './routes/acount.js')));
 
 

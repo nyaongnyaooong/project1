@@ -38,11 +38,12 @@ const jwt = require(path.join(__dirname, '../modules/jwt'));
 
 // 로그인 요청
 router.post('/login/post', async (req, res) => {
-  const { loginID, loginPW } = req.body;
-
+  const { loginID, loginPW, url } = req.body;
+  console.log('로그인 요청', req.body)
   try {
     // db에서 요청한 ID에 해당하는 data 가져옴
     const dbResult = await db.collection('user').findOne({ name: loginID });
+    if (!dbResult) throw new Error('db');
     const { name, key, salt } = dbResult;
     if (!name) throw new Error('일치하는 아이디가 존재하지 않음');
 
@@ -59,19 +60,25 @@ router.post('/login/post', async (req, res) => {
     //JWT 생성
     const token = jwt.createToken(payload);
 
+    console.log('토큰', token)
     // 생성한 토큰을 쿠키로 만들어서 브라우저에게 전달
     res.cookie('accessToken', token, {
       path: '/',
       HttpOnly: true
     });
-
     const resResult = {
       result: true,
       error: false,
-    };
-    res.send(resResult);
+    }; 
+    res.send(resResult)
+    // res.redirect(url);
+    
   } catch (err) {
     console.log(err)
+    console.log(typeof(err))
+    console.log(err.name)
+    console.log(err.message)
+    console.log('stack', err.stack);
     const resResult = {
       result: false,
       error: err,

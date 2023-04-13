@@ -38,6 +38,7 @@ const Nav = (props) => {
     return btnArray;
   }
 
+  // right section : user data
   const BtnRightSect = () => {
     const FormUser = () => {
     return (

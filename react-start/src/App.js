@@ -8,6 +8,7 @@ import Nav from './component/Navbar'
 // import Loading from './component/Loading'
 import { Blog } from './component/BlogRouter'
 import { Home, Board, BoardPostCreate, BoardPostRead, BoardPostUpdate } from './component/BoardRouter'
+import { Coin } from './component/CoinRouter'
 import axios from 'axios';
 
 
@@ -34,7 +35,7 @@ const BgDarker = (props) => {
 }
 
 function App() {
-  const navBtnList = ["NyaongNyaooong", "Blog", "Board", "menu1", "menu2"];
+  const navBtnList = ["NyaongNyaooong", "Blog", "Board", "Coin", "menu2"];
 
   let nowPageState = 0;
   const urlPath = window.location.pathname;
@@ -72,7 +73,7 @@ function App() {
     }
     fetchData();
     console.log('렌더링됨');
-  }, [])
+  }, [setBgDarkAct])
 
   // setTimeout(() => {
   //   setLoading(false);
@@ -109,6 +110,7 @@ function App() {
               <Route path="/board/write" element={<BoardPostCreate />}></Route>
               <Route path="/board/:id" element={<BoardPostRead />}></Route>
               <Route path="/board/put/:id" element={<BoardPostUpdate />}></Route>
+              <Route path="/coin" element={<Coin />}></Route>
             </Routes>
           </div>
           {/* <!-- /Content --> */}
@@ -123,7 +125,7 @@ function App() {
       {/* /All Section */}
 
       {/* <!-- Login & Register Form --> */}
-      <LogInForm active={lgnFrmAct} />
+      <LogInForm active={lgnFrmAct} stateFuncs={stateFunctions}/>
       <RegisterForm active={regFrmAct} />
       {/* /Login & Register Form */}
 
